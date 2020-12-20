@@ -1,8 +1,7 @@
-package trie_test
+package trie
 
 import (
 	"testing"
-	"trie-go"
 
 	"github.com/google/go-cmp/cmp"
 )
@@ -26,7 +25,7 @@ func Test_AddPhrases(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			trie := trie.NewNode()
+			trie := NewNode()
 			trie.Add(tc.id, tc.name)
 			diff := cmp.Diff(tc.expectedCorrectNames, trie.GetCorrectWords(tc.expectedValue))
 			if diff != "" {
@@ -49,7 +48,7 @@ func Test_AddPhrases(t *testing.T) {
 }
 
 // func Test_AddWordsSequentially(t *testing.T) {
-// 	trie := trie.NewNode()
+// 	trie := NewNode()
 // 	cases := []struct {
 // 		testName              string
 // 		id                    string
@@ -103,7 +102,7 @@ func Test_IsFilled(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			trie := trie.NewNode()
+			trie := NewNode()
 			trie.Add(tc.id, tc.name)
 			if trie.IsFilled() != tc.isFilled {
 				t.Fatalf("\nExpected: %v\nGot: %v", tc.isFilled, trie.IsFilled())
@@ -125,7 +124,7 @@ func Test_HasWord(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			trie := trie.NewNode()
+			trie := NewNode()
 			trie.Add(tc.id, tc.name)
 			if trie.HasWord(tc.word) != tc.hasWord {
 				t.Fatalf("\nExpected: %v\nGot: %v", tc.hasWord, trie.HasWord(tc.word))
@@ -151,7 +150,7 @@ func Test_GetMaximumSizeOfPossibleIds(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			trie := trie.NewNode()
+			trie := NewNode()
 			for _, d := range tc.data {
 				trie.Add(d.id, d.name)
 			}
@@ -179,7 +178,7 @@ func Test_GetMaximumSizeOfCorrectIds(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			trie := trie.NewNode()
+			trie := NewNode()
 			for _, d := range tc.data {
 				trie.Add(d.id, d.name)
 			}
@@ -191,24 +190,24 @@ func Test_GetMaximumSizeOfCorrectIds(t *testing.T) {
 }
 
 func Test_SearchByRelevance(t *testing.T) {
-	trieNode := trie.NewNode()
+	trieNode := NewNode()
 	cases := []struct {
 		testName string
 		id       string
 		name     string
 		word     string
-		expected []trie.SearchData
+		expected []SearchData
 	}{
-		{"Adding one word 1", "1", "Direito Penal", "direito penal", []trie.SearchData{{"1", "Direito Penal"}}},
-		{"Adding one word 2", "2", "Direito Penal Militar", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}}},
-		{"Adding one word 3", "3", "Direito Penal / Princípios do Direito Penal", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}},
-		{"Adding one word 4", "4", "Direito Penal / Introdução ao estudo do Direito Penal", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}}},
-		{"Adding one word 5", "5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}}},
-		{"Adding one word 6", "6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}}},
-		{"Adding one word 7", "7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}}},
-		{"Adding one word 8", "8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}}},
-		{"Adding one word 9", "9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}}},
-		{"Adding one word 10", "10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal", "direito penal", []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}, {"10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal"}}},
+		{"Adding one word 1", "1", "Direito Penal", "direito penal", []SearchData{{"1", "Direito Penal"}}},
+		{"Adding one word 2", "2", "Direito Penal Militar", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}}},
+		{"Adding one word 3", "3", "Direito Penal / Princípios do Direito Penal", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}},
+		{"Adding one word 4", "4", "Direito Penal / Introdução ao estudo do Direito Penal", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}}},
+		{"Adding one word 5", "5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}}},
+		{"Adding one word 6", "6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}}},
+		{"Adding one word 7", "7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}}},
+		{"Adding one word 8", "8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}}},
+		{"Adding one word 9", "9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}}},
+		{"Adding one word 10", "10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal", "direito penal", []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}, {"10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal"}}},
 	}
 
 	for _, tc := range cases {
@@ -223,26 +222,26 @@ func Test_SearchByRelevance(t *testing.T) {
 }
 
 func Test_SearchByRelevancePaginated(t *testing.T) {
-	trieNode := trie.NewNode()
+	trieNode := NewNode()
 	cases := []struct {
 		testName           string
 		id                 string
 		name               string
 		word               string
-		pagination         trie.Pagination
-		expectedData       []trie.SearchData
-		expectedPagination trie.Pagination
+		pagination         Pagination
+		expectedData       []SearchData
+		expectedPagination Pagination
 	}{
-		{"Adding one word 1", "1", "Direito Penal", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 1}},
-		{"Adding one word 2", "2", "Direito Penal Militar", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 2}},
-		{"Adding one word 3", "3", "Direito Penal / Princípios do Direito Penal", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 3}},
-		{"Adding one word 4", "4", "Direito Penal / Introdução ao estudo do Direito Penal", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 4}},
-		{"Adding one word 5", "5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 5}},
-		{"Adding one word 6", "6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego", "direito penal", trie.Pagination{PerPage: 3, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, trie.Pagination{PerPage: 3, Page: 1, Total: 6}},
-		{"Adding one word 7", "7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano", "direito penal", trie.Pagination{PerPage: 3, Page: 2}, []trie.SearchData{{"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}}, trie.Pagination{PerPage: 3, Page: 2, Total: 7}},
-		{"Adding one word 8", "8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo", "direito penal", trie.Pagination{PerPage: 3, Page: 3}, []trie.SearchData{{"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}}, trie.Pagination{PerPage: 3, Page: 3, Total: 8}},
-		{"Adding one word 9", "9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média", "direito penal", trie.Pagination{PerPage: 10, Page: 2}, nil, trie.Pagination{PerPage: 10, Page: 2}},
-		{"Adding one word 10", "10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal", "direito penal", trie.Pagination{PerPage: 100, Page: 1}, []trie.SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}, {"10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal"}}, trie.Pagination{PerPage: 100, Page: 1, Total: 10}},
+		{"Adding one word 1", "1", "Direito Penal", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}}, Pagination{PerPage: 3, Page: 1, Total: 1}},
+		{"Adding one word 2", "2", "Direito Penal Militar", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}}, Pagination{PerPage: 3, Page: 1, Total: 2}},
+		{"Adding one word 3", "3", "Direito Penal / Princípios do Direito Penal", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, Pagination{PerPage: 3, Page: 1, Total: 3}},
+		{"Adding one word 4", "4", "Direito Penal / Introdução ao estudo do Direito Penal", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, Pagination{PerPage: 3, Page: 1, Total: 4}},
+		{"Adding one word 5", "5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, Pagination{PerPage: 3, Page: 1, Total: 5}},
+		{"Adding one word 6", "6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego", "direito penal", Pagination{PerPage: 3, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}}, Pagination{PerPage: 3, Page: 1, Total: 6}},
+		{"Adding one word 7", "7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano", "direito penal", Pagination{PerPage: 3, Page: 2}, []SearchData{{"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}}, Pagination{PerPage: 3, Page: 2, Total: 7}},
+		{"Adding one word 8", "8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo", "direito penal", Pagination{PerPage: 3, Page: 3}, []SearchData{{"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}}, Pagination{PerPage: 3, Page: 3, Total: 8}},
+		{"Adding one word 9", "9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média", "direito penal", Pagination{PerPage: 10, Page: 2}, nil, Pagination{PerPage: 10, Page: 2}},
+		{"Adding one word 10", "10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal", "direito penal", Pagination{PerPage: 100, Page: 1}, []SearchData{{"1", "Direito Penal"}, {"2", "Direito Penal Militar"}, {"3", "Direito Penal / Princípios do Direito Penal"}, {"4", "Direito Penal / Introdução ao estudo do Direito Penal"}, {"5", "Direito Penal / Introdução ao estudo do Direito Penal / O Direito Penal e o Estado Democrático de Direito"}, {"6", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Grego"}, {"7", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal Romano"}, {"8", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal e o IIuminismo"}, {"9", "Direito Penal / Introdução ao estudo do Direito Penal / Evolução Histórica / Direito Penal na Idade Média"}, {"10", "Direito Penal / Introdução ao estudo do Direito Penal / As Velocidades do Direito Penal"}}, Pagination{PerPage: 100, Page: 1, Total: 10}},
 	}
 
 	for _, tc := range cases {
